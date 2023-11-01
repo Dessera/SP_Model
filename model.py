@@ -25,10 +25,12 @@ class DiabetesModel(torch.nn.Module):
         logits = self.m_linear_stack(x)
         return logits
 
+
 def get_diabetes_model(device: torch.device) -> DiabetesModel:
     model = DiabetesModel()
     model.to(device)
     return model
+
 
 # test
 if __name__ == "__main__":

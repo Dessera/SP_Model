@@ -1,3 +1,4 @@
+from typing import Tuple
 import torch
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
@@ -33,7 +34,7 @@ def test(
     model: torch.nn.Module,
     loss_fn: torch.nn.Module,
     test_data_loader: torch.utils.data.DataLoader,
-) -> float:
+) -> Tuple[float, float]:
     total_size = len(test_data_loader.dataset)
     num_batches = len(test_data_loader)
     model.eval()
@@ -48,7 +49,7 @@ def test(
     print(
         f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n"
     )
-    return test_loss
+    return correct, test_loss
 
 
 def get_current_device() -> torch.device:
@@ -73,19 +74,29 @@ def main() -> None:
     optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 
     test_loss_seq = []
+    correct_seq = []
 
     for epoch in range(EPOCHS):
         # clear last epoch's output
         print("\033[H\033[J")
         print(f"Epoch {epoch+1}\n-------------------------------")
         train(model, loss_fn, optimizer, train_data_loader)
-        test_loss_seq.append(test(model, loss_fn, test_data_loader))
+        correct, test_loss = test(model, loss_fn, test_data_loader)
+        test_loss_seq.append(test_loss)
+        correct_seq.append(correct)
 
-    plt.plot(test_loss_seq)
+    # plot with legend
+    plt.plot(correct_seq, color="blue", label="Accuracy")
+    plt.plot(test_loss_seq, color="orange", label="Loss")
+    # set x-axis label
     plt.xlabel("Epoch")
+    # set y-axis label (left)
+    plt.ylabel("Accuracy")
+    # set y-axis label (right)
+    plt.twinx()
     plt.ylabel("Loss")
     plt.show()
-    
+
     print("Done!")
 
 
