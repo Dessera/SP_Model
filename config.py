@@ -1,0 +1,8 @@
+# DATA
+DATA_PATH = "dataset/diabetes.csv"
+TEST_DATA_PERCENT = 0.1
+
+# TRAIN
+BATCH_SIZE = 128
+LEARNING_RATE = 1e-2
+EPOCHS = 10000
