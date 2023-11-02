@@ -1,8 +1,15 @@
-from typing import Tuple
+import datetime
+from typing import Sequence, Tuple
 import torch
 from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
-from config import BATCH_SIZE, LEARNING_RATE, EPOCHS
+from config import (
+    BATCH_SIZE,
+    LEARNING_RATE,
+    EPOCHS,
+    MODEL_PATH,
+    FIGURE_PATH,
+)
 from model import get_diabetes_model
 from data import get_diabetes_data
 
@@ -64,8 +71,27 @@ def get_current_device() -> torch.device:
     )
 
 
+def plot_loss_accuracy(loss: Sequence[float], accuracy: Sequence[float]) -> None:
+    # split the figure into 2 subplots
+    fig, (ax1, ax2) = plt.subplots(2)
+    fig.suptitle("Loss and Accuracy")
+    ax1.plot(loss)
+    ax1.set_ylabel("Loss")
+    ax2.plot(accuracy)
+    ax2.set_ylabel("Accuracy")
+    ax2.set_xlabel("Epoch")
+    plt.savefig("{}/{}.png".format(FIGURE_PATH, datetime.datetime.now()))
+
+
+def save_model(model: torch.nn.Module) -> None:
+    torch.save(
+        model.state_dict(), "{}/{}.pt".format(MODEL_PATH, datetime.datetime.now())
+    )
+
+
 def main() -> None:
     device = get_current_device()
+    print(f"Using device: {device}")
     model = get_diabetes_model(device)
     train_data, test_data = get_diabetes_data(device)
     train_data_loader = DataLoader(train_data, batch_size=BATCH_SIZE)
@@ -85,19 +111,13 @@ def main() -> None:
         test_loss_seq.append(test_loss)
         correct_seq.append(correct)
 
-    # plot with legend
-    plt.plot(correct_seq, color="blue", label="Accuracy")
-    plt.plot(test_loss_seq, color="orange", label="Loss")
-    # set x-axis label
-    plt.xlabel("Epoch")
-    # set y-axis label (left)
-    plt.ylabel("Accuracy")
-    # set y-axis label (right)
-    plt.twinx()
-    plt.ylabel("Loss")
-    plt.show()
+    # save model
+    save_model(model)
 
-    print("Done!")
+    # plot with legend
+    plot_loss_accuracy(test_loss_seq, correct_seq)
+
+    print("Done with {}!".format(device))
 
 
 if __name__ == "__main__":

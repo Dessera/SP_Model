@@ -11,6 +11,8 @@ class DiabetesModel(torch.nn.Module):
         self.m_linear_stack = torch.nn.Sequential(
             torch.nn.Linear(8, 6),
             torch.nn.ReLU(),
+            torch.nn.Linear(6, 6),
+            torch.nn.ReLU(),
             torch.nn.Linear(6, 4),
             torch.nn.ReLU(),
             torch.nn.Linear(4, 2),

@@ -47,6 +47,19 @@ def get_diabetes_data(
     return train_dataset, test_dataset
 
 
+def get_diabetes_full_data(
+    device: torch.device | str,
+) -> DiabetesDataset:
+    # no split data
+    # load data
+    data_path = DATA_PATH
+    data_np = np.loadtxt(data_path, delimiter=",", dtype=np.float32)
+    return DiabetesDataset(
+        torch.from_numpy(data_np[:, 0:-1]).to(device),
+        torch.from_numpy(data_np[:, [-1]]).to(device),
+    )
+
+
 # test (available only pwd is project root)
 if __name__ == "__main__":
     train_dataset, test_dataset = get_diabetes_data("cpu")
